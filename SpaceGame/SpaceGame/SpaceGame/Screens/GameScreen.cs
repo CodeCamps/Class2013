@@ -16,6 +16,7 @@ namespace SpaceGame.Screens
 
         public GameScreen(Game parent) : base(parent) { }
 
+        Color COLOR_FADED = new Color(128, 128, 128, 128);
         public override void Draw(GameTime gameTime, SpriteBatch batch)
         {
             ActorBackground.Draw(gameTime, batch, sprites);
@@ -24,24 +25,39 @@ namespace SpaceGame.Screens
             player.Draw(gameTime, batch, sprites);
             ActorEnemy.DrawAllEnemies(gameTime, batch, sprites);
 
+            if (isPaused)
+            {
+                batch.Draw(sprites, Parent.GraphicsDevice.Viewport.Bounds, new Rectangle(10, 10, 20, 20), COLOR_FADED);
+            }
+
             base.Draw(gameTime, batch);
         }
+
+        private bool wasStartPressed = true;
+        private bool isPaused = false;
 
         public override void Update(GameTime gameTime, GamePadState padState)
         {
             // Allows the game to exit
-            //var gamepad = GamePad.GetState(PlayerIndex.One);
-            //GamePad.SetVibration(PlayerIndex.One, 1.0f, 1.0f);
+
+            bool isStartPressed = padState.Buttons.Start == ButtonState.Pressed;
+
             if (padState.Buttons.Back == ButtonState.Pressed)
             {
                 // end game
                 ScreenManager.SetCurrentScreen(new TitleScreen(Parent));
             }
-            //else if (padState.Buttons.Start == ButtonState.Pressed)
-            //{
-            //    // new game
-            //    player.Color = Color.White;
-            //}
+            else if (!wasStartPressed && isStartPressed)
+            {
+                isPaused = !isPaused;
+            }
+
+            wasStartPressed = isStartPressed;
+
+            if (isPaused)
+            {
+                return;
+            }
 
             ActorBackground.Update(gameTime);
 

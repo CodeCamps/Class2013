@@ -73,8 +73,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
+    <Compile Include="ActorBullet.cs" />
     <Compile Include="ActorEnemy.cs" />
     <Compile Include="ActorPlayer.cs" />
+    <Compile Include="ActorRock.cs" />
+    <Compile Include="ActorShooter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />

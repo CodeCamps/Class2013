@@ -9,15 +9,38 @@ using Microsoft.Xna.Framework.Input;
 
 namespace SpaceGame
 {
-    public class ActorPlayer : Actor
+    public class ActorPlayer : ActorShooter
     {
-        public Rectangle Bounds = Rectangle.Empty;
-        public double SecondsBetweenShots = 3.0;
+        public static Rectangle Bounds = Rectangle.Empty;
+
         public Rectangle SrcRectStraight = Rectangle.Empty;
         public Rectangle SrcRectLeft = Rectangle.Empty;
         public Rectangle SrcRectRight = Rectangle.Empty;
 
-        public override void Update(GameTime gameTime, GamePadState gamepad)
+        public static ActorPlayer Create(Rectangle bounds)
+        {
+            var player = new ActorPlayer();
+            player.SrcRectStraight = new Rectangle(396, 79, 99, 75);
+            player.SrcRectLeft = new Rectangle(258, 246, 90, 77);
+            player.SrcRectRight = new Rectangle(258, 167, 90, 77);
+
+            player.SecondsBetweenShots = 1.2;
+
+            // player can only move around bottom half of screen
+            bounds.Y = bounds.Height / 2;
+            bounds.Height /= 2;
+
+            // adjust bounds for player sprite width
+            bounds.Width -= player.SrcRectStraight.Width;
+            bounds.Height -= player.SrcRectStraight.Height;
+
+            // assign bounds
+            ActorPlayer.Bounds = bounds;
+
+            return player;
+        }
+
+        public void Update(GameTime gameTime, GamePadState gamepad)
         {
             // assume no buttons are pressed
             var speed = Vector2.Zero;
@@ -60,31 +83,56 @@ namespace SpaceGame
             // move at 5 pixels per second
             this.Speed = speed * 150.0f;
 
-            // call back to Actor.Update for location calculation
-            base.Update(gameTime, gamepad);
+            // call back to Actor.Update for location calculation and cooldown
+            base.Update(gameTime);
 
             // keep ship in bounds
-            if (!Rectangle.Empty.Equals(this.Bounds))
+            var bounds = ActorPlayer.Bounds;
+            if (!Rectangle.Empty.Equals(bounds))
             {
-                if (this.Location.X < this.Bounds.X)
+                if (this.Location.X < bounds.Left)
                 {
-                    this.Location.X = this.Bounds.X;
+                    this.Location.X = bounds.Left;
                 }
 
-                if (this.Location.X > this.Bounds.Right)
+                if (this.Location.X > bounds.Right)
                 {
-                    this.Location.X = this.Bounds.Right;
+                    this.Location.X = bounds.Right;
                 }
 
-                if (this.Location.Y < this.Bounds.Y)
+                if (this.Location.Y < bounds.Top)
                 {
-                    this.Location.Y = this.Bounds.Y;
+                    this.Location.Y = bounds.Top;
                 }
 
-                if (this.Location.Y > this.Bounds.Bottom)
+                if (this.Location.Y > bounds.Bottom)
                 {
-                    this.Location.Y = this.Bounds.Bottom;
+                    this.Location.Y = bounds.Bottom;
                 }
+            }
+
+            // try to shoot?
+            if (gamepad.Buttons.A == ButtonState.Pressed)
+            {
+                this.TryToShoot();
+            }
+
+            // check for collision with enemy bullet
+            if (ActorBullet.Touching(this, 1))
+            {
+                this.Color = Color.Red;
+            }
+
+            // check for collision with enemy ship
+            if (ActorEnemy.Touching(this))
+            {
+                this.Color = Color.Red;
+            }
+
+            // check for collision with rock
+            if (ActorRock.Touching(this))
+            {
+                this.Color = Color.Red;
             }
         }
     }

@@ -19,6 +19,8 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        double angle = 0;
+
         const float FLY_SPEED = 10.0f;
 
         const float RATE_CLOUDS = 0.1f;
@@ -177,6 +179,10 @@ namespace WindowsGame1
 
             locJoe.Y -= dy;
 
+            locEnemy.X = 200;
+            locEnemy.Y = 200.0f + 200.0f * (float)Math.Sin(angle);
+            angle += 0.01;
+
             if (dx < 0)
             {
                 texJoeCurrent = texJoeKick;
@@ -211,6 +217,8 @@ namespace WindowsGame1
             spriteBatch.Draw(texSolidColor, rectGrass, colGrass);
 
             spriteBatch.Draw(texJoeCurrent, locJoe, Color.White);
+
+            spriteBatch.Draw(texEnemy, locEnemy, Color.White);
 
             spriteBatch.End();
 

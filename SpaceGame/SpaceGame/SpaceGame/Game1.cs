@@ -19,7 +19,13 @@ namespace SpaceGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public GraphicsDeviceManager Graphics { get { return graphics; } }
+        Texture2D sprites;
+
+        ActorPlayer player;
+        List<ActorEnemy> enemies = new List<ActorEnemy>();
+        List<Actor> enemyShots = new List<Actor>();
+        List<Actor> playerShots = new List<Actor>();
+        List<Actor> rocks = new List<Actor>();
 
         public Game1()
         {
@@ -36,8 +42,25 @@ namespace SpaceGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            
+            // create our player
+            player = new ActorPlayer();
+            player.SrcRectStraight = new Rectangle(396, 79, 99, 75);
+            player.SrcRectLeft = new Rectangle(258, 246, 90, 77);
+            player.SrcRectRight = new Rectangle(258, 167, 90, 77);
 
-            Screens.ScreenManager.SetCurrentScreen(new Screens.TitleScreen(this));
+            player.SecondsBetweenShots = 1.2;
+
+            // player can move around entire screen?
+            player.Bounds = this.GraphicsDevice.Viewport.Bounds;
+            
+            // nope, just bottom half
+            player.Bounds.Y = player.Bounds.Height / 2;
+            player.Bounds.Height /= 2;
+            
+            // adjust bounds for player sprite width
+            player.Bounds.Width -= player.SrcRectStraight.Width;
+            player.Bounds.Height -= player.SrcRectStraight.Height;
 
             base.Initialize();
         }
@@ -50,9 +73,9 @@ namespace SpaceGame
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            GamePadEx.UseDefaultKeyMappings();
 
             // TODO: use this.Content to load your game content here
+            sprites = Content.Load<Texture2D>("sprites");
         }
 
         /// <summary>
@@ -71,7 +94,40 @@ namespace SpaceGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            Screens.ScreenManager.Update(gameTime);
+            // Allows the game to exit
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                this.Exit();
+
+            // TODO: Add your update logic here
+            var gamepad = GamePad.GetState(PlayerIndex.One);
+            
+            player.Update(gameTime, gamepad);
+            
+            foreach (var shot in playerShots)
+            {
+                shot.Update(gameTime, gamepad);
+            }
+
+            AddEnemy(gameTime);
+            foreach (var enemy in enemies)
+            {
+                enemy.Update(gameTime, gamepad);
+                AddEnemyShot(gameTime, enemy);
+            }
+            
+            foreach (var shot in enemyShots)
+            {
+                shot.Update(gameTime, gamepad);
+            }
+
+            playerShotCoolDown -= gameTime.ElapsedGameTime.TotalSeconds;
+            addEnemyCoolDown -= gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (gamepad.Buttons.A == ButtonState.Pressed)
+            {
+                AddPlayerShot(gameTime);
+            }
+
             base.Update(gameTime);
         }
 
@@ -82,7 +138,105 @@ namespace SpaceGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            Screens.ScreenManager.Draw(gameTime, spriteBatch);
+
+            // TODO: Add your drawing code here
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+
+            // draw player & shots
+            player.Draw(gameTime, spriteBatch, sprites);
+            
+            foreach (var shot in playerShots)
+            {
+                shot.Draw(gameTime, spriteBatch, sprites);
+            }
+
+            // draw enemies & shots
+            foreach (var enemy in enemies)
+            {
+                enemy.Draw(gameTime, spriteBatch, sprites);
+            }
+
+            foreach (var shot in enemyShots)
+            {
+                shot.Draw(gameTime, spriteBatch, sprites);
+            }
+
+            spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+
+        protected double playerShotCoolDown = 0.0;
+        protected void AddPlayerShot(GameTime gameTime)
+        {
+            if (playerShotCoolDown <= 0)
+            {
+                var shot = new Actor();
+                shot.SrcRect = new Rectangle(497, 37, 9, 33);
+                shot.Location.X = player.Location.X;
+                shot.Location.Y = player.Location.Y;
+                shot.Speed.Y = -200.0f;
+                playerShots.Add(shot);
+                playerShotCoolDown = player.SecondsBetweenShots;
+            }
+
+            int i = 0;
+            while (i < playerShots.Count)
+            {
+                if (playerShots[i].Location.Y < -playerShots[i].SrcRect.Height)
+                {
+                    playerShots.RemoveAt(i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
+        }
+
+        protected Random rand = new Random();
+
+        protected double addEnemyCoolDown = 3.0;
+        protected float lastEnemyY = 0.0f;
+        protected void AddEnemy(GameTime gameTime)
+        {
+            if (addEnemyCoolDown <= 0)
+            {
+                var enemy = new ActorEnemy();
+                enemy.SrcRect = new Rectangle(258, 115, 98, 50);
+                enemy.ShotCoolDown = rand.NextDouble() * 3.0 + 1.0;
+                enemy.Speed.X = (float)rand.NextDouble() * 25.0f + 10.0f;
+                enemy.Location.Y = (float)rand.NextDouble() * 150.0f;
+                enemies.Add(enemy);
+                addEnemyCoolDown = rand.NextDouble() * 3.0 + 3.0;
+            }
+        }
+
+        protected void AddEnemyShot(GameTime gameTime, ActorEnemy enemy)
+        {
+            if (enemy.ShotCoolDown <= 0)
+            {
+                var shot = new Actor();
+                shot.SrcRect = new Rectangle(497, 2, 9, 33);
+                shot.Location.X = enemy.Location.X;
+                shot.Location.Y = enemy.Location.Y;
+                shot.Speed.Y = 200.0f;
+                enemy.ShotCoolDown = enemy.SecondsBetweenShots;
+                enemyShots.Add(shot);
+            }
+
+            int i = 0;
+            while (i < enemyShots.Count)
+            {
+                if (enemyShots[i].Location.Y > player.Bounds.Bottom)
+                {
+                    enemyShots.RemoveAt(i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
         }
     }
 }

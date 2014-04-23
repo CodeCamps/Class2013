@@ -19,19 +19,7 @@ namespace SpaceGame
         // pixels per second
         public Vector2 Speed = Vector2.Zero;
 
-        // on-screen rectangle
-        public Rectangle ScreenRect
-        {
-            get
-            {
-                var rect = this.SrcRect;
-                rect.X = (int)this.Location.X;
-                rect.Y = (int)this.Location.Y;
-                return rect;
-            }
-        }
-
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime, GamePadState gamepad)
         {
             this.Location += this.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }

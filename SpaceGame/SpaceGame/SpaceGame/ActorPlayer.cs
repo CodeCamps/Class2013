@@ -37,10 +37,13 @@ namespace SpaceGame
             // assign bounds
             ActorPlayer.Bounds = bounds;
 
+            // center player
+            player.Location.X = bounds.Center.X - player.SrcRectStraight.Width / 2;
+
             return player;
         }
 
-        public void Update(GameTime gameTime, GamePadState gamepad)
+        public bool Update(GameTime gameTime, GamePadState gamepad)
         {
             // assume no buttons are pressed
             var speed = Vector2.Zero;
@@ -134,6 +137,8 @@ namespace SpaceGame
             {
                 this.Color = Color.Red;
             }
+
+            return this.Color != Color.Red;
         }
     }
 }

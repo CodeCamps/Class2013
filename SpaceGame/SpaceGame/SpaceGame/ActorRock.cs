@@ -15,6 +15,8 @@ namespace SpaceGame
         private static Random _rand = new Random();
         private static List<ActorRock> _rocks = new List<ActorRock>();
 
+        public static void RemoveAllRocks() { ActorRock._rocks.Clear(); }
+
         public static void TryToAddRock(GameTime gameTime)
         {
             CleanHouse();

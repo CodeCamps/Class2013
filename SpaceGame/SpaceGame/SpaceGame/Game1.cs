@@ -19,10 +19,6 @@ namespace SpaceGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Texture2D sprites;
-
-        ActorPlayer player;
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -39,8 +35,7 @@ namespace SpaceGame
         {
             // TODO: Add your initialization logic here
 
-            // create our player
-            player = ActorPlayer.Create(this.GraphicsDevice.Viewport.Bounds);
+            Screens.ScreenManager.SetCurrentScreen(new Screens.TitleScreen(this));
 
             base.Initialize();
         }
@@ -53,9 +48,9 @@ namespace SpaceGame
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            GamePadEx.UseDefaultKeyMappings();
 
             // TODO: use this.Content to load your game content here
-            sprites = Content.Load<Texture2D>("sprites");
         }
 
         /// <summary>
@@ -74,27 +69,7 @@ namespace SpaceGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            var gamepad = GamePad.GetState(PlayerIndex.One);
-            if (gamepad.Buttons.Back == ButtonState.Pressed)
-            {
-                // end game
-                this.Exit();
-            }
-            else if (gamepad.Buttons.Start == ButtonState.Pressed)
-            {
-                // new game
-                player.Color = Color.White;
-            }
-
-            player.Update(gameTime, gamepad);
-            ActorBullet.UpdateAllBullets(gameTime);
-            ActorRock.UpdateAllRocks(gameTime);
-            ActorEnemy.UpdateAllEnemies(gameTime);
-
-            ActorEnemy.TryToAddEnemy(gameTime);
-            ActorRock.TryToAddRock(gameTime);
-
+            Screens.ScreenManager.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -105,18 +80,7 @@ namespace SpaceGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-
-            ActorRock.DrawAllRocks(gameTime, spriteBatch, sprites);
-            ActorBullet.DrawAllBullets(gameTime, spriteBatch, sprites);
-            player.Draw(gameTime, spriteBatch, sprites);
-            ActorEnemy.DrawAllEnemies(gameTime, spriteBatch, sprites);
-
-            spriteBatch.End();
-
-            base.Draw(gameTime);
+            Screens.ScreenManager.Draw(gameTime, spriteBatch);
         }
     }
 }

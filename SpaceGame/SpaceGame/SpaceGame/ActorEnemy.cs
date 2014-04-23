@@ -21,6 +21,8 @@ namespace SpaceGame
             this.TryToShoot();
         }
 
+        public static void RemoveAllEnemies() { ActorEnemy._enemies.Clear();  }
+
         public static void TryToAddEnemy(GameTime gameTime)
         {
             CleanHouse();

@@ -12,6 +12,8 @@ namespace SpaceGame
     {
         private static List<ActorBullet> _bullets = new List<ActorBullet>();
 
+        public static void RemoveAllBullets() { ActorBullet._bullets.Clear(); }
+
         public static void UpdateAllBullets(GameTime gameTime)
         {
             CleanHouse();

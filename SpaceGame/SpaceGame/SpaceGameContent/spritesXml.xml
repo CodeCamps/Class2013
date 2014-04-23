@@ -27,5 +27,5 @@ r => 'y' only set if sprite is rotated
     <sprite n="playerDamaged" x="396" y="2" w="99" h="75"/>
   <sprite n="playerLeft" x="258" y="246" w="90" h="77"/>
   <sprite n="playerRight" x="258" y="167" w="90" h="77"/>
-    <sprite n="starBackground" x="2" y="2" w="254" h="256"/>
+  <sprite n="starBackground" x="2" y="2" w="254" h="256"/>
 </TextureAtlas>

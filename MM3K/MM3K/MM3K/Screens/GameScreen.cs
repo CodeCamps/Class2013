@@ -11,7 +11,9 @@ namespace MM3K.Screens
 {
     public class GameScreen : BaseScreen
     {
-        Texture2D texTile;
+        Texture2D texTile1;
+        Texture2D texTile2;
+        Texture2D texTile3;
         Texture2D texBaby;
         Texture2D texBaddie;
         Texture2D texBanana;
@@ -19,7 +21,8 @@ namespace MM3K.Screens
         Texture2D texShooter;
         Texture2D texPoo;
 
-        Rectangle rectGround = new Rectangle(128, 128, 128, 128);
+        //Rectangle rectGround = new Rectangle(128, 128, 128, 128);
+        Rectangle rectGround = new Rectangle(0, 0, 64, 64);
 
         Rectangle[] rectRunFrames = 
         {
@@ -48,7 +51,7 @@ namespace MM3K.Screens
         Vector2 originShootTopRight = new Vector2(25, 53);
         Vector2 originShootTopLeft = new Vector2(88 - 25, 53);
 
-        public const float GROUND_LEVEL_Y = 298 + 56;
+        public const float GROUND_LEVEL_Y = 298 + 56 - 128;
         public const float GRAVITY = 600.0f;
         public float accelerationY = 0.0f;
         public Vector2 accelerationPoo = Vector2.Zero;
@@ -159,11 +162,36 @@ namespace MM3K.Screens
 
         public override void Draw(GameTime gameTime, SpriteBatch batch)
         {
-            Vector2 locTile = new Vector2(-32, Bounds.Height - 128);
+            int i = 0;
+            Vector2 locTile = new Vector2(-32, Bounds.Height - 64);
             while (locTile.X < Bounds.Width)
             {
-                batch.Draw(texTile, locTile, rectGround, Color.White);
-                locTile.X += 90;
+                if (++i == 2)
+                    batch.Draw(texTile3, locTile, rectGround, Color.White);
+                else
+                    batch.Draw(texTile2, locTile, rectGround, Color.White);
+                //locTile.X += 90;
+                locTile.X += 64;
+            }
+
+            i = 0;
+            locTile = new Vector2(-32, Bounds.Height - 128);
+            while (locTile.X < Bounds.Width)
+            {
+                if (++i == 12)
+                    batch.Draw(texTile3, locTile, rectGround, Color.White);
+                else
+                    batch.Draw(texTile2, locTile, rectGround, Color.White);
+                //locTile.X += 90;
+                locTile.X += 64;
+            }
+
+            locTile = new Vector2(-32, Bounds.Height - 64 - 128);
+            while (locTile.X < Bounds.Width)
+            {
+                batch.Draw(texTile1, locTile, rectGround, Color.White);
+                //locTile.X += 90;
+                locTile.X += 64;
             }
 
             if (isRunning && accelerationY == 0)
@@ -261,7 +289,10 @@ namespace MM3K.Screens
             texBaby = Parent.Content.Load<Texture2D>("baby");
             texBaddie = Parent.Content.Load<Texture2D>("baddie");
             texBanana = Parent.Content.Load<Texture2D>("bananas");
-            texTile = Parent.Content.Load<Texture2D>("mousers");
+            //texTile = Parent.Content.Load<Texture2D>("mousers");
+            texTile1 = Parent.Content.Load<Texture2D>("DecentTile1");
+            texTile2 = Parent.Content.Load<Texture2D>("DecentTile2");
+            texTile3 = Parent.Content.Load<Texture2D>("DecentTile3");
             texMonkey = Parent.Content.Load<Texture2D>("Standupandrun");
             texShooter = Parent.Content.Load<Texture2D>("shooter");
             texPoo = Parent.Content.Load<Texture2D>("poo");
